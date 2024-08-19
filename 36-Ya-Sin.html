@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="jquery-3.7.1.min.js"></script>
+  <script src="36-Ya-Sin.js"></script>
+  <title>An-Naba</title>
+</head>
+<BODY align="center">
+  <table border="0px" width="100%">
+    <tr style="font-size: 16px;">
+      <td>
+        <button id="btntutup" onclick="" value="1">Mengaji (Pembaca Quran : Mishari Rashid al-'Afasy) "quran.com"</button> <br>
+      </td>
+    </tr>
+    <tr style="font-size: 16px;">
+      <td>
+        <audio class="hilangy" controls id="ctrl_iwr4_3" width="200px" hidden>
+          <source id="src_iwr4_3" type="audio/mpeg">
+        </audio>
+      </td>
+    </tr>
+    <tr style="font-size: 16px;">
+      <td>
+          Surah <input id="surat" type="text" value="0" size="25px" style="font-size: 16px;"> 
+          <input id="jumayat" type="text" value="0" size="3px" style="font-size: 16px;"> 
+          <input onchange="ukuranayatpng();" id="ukuranid" type="number" value="100" style="font-size: 16px;width: 50px;"> %
+      </td>
+    </tr>
+    <tr style="font-size: 16px;">
+      <td>
+           Ayat 
+           <button onclick="ulang();" style="font-size: 18px;background-color: rgb(243, 187, 67);"><<</button>
+           <input onchange="tampildata();" id="noayat" type="number" value="1" style="font-size: 16px;">
+           <button onclick="lanjut();startt();" style="font-size: 16px;background-color: rgb(243, 187, 67);">>></button>
+           <button onclick="document.getElementById('pauto').value='tidak';startt();" style="font-size: 16px;background-color: rgb(243, 187, 67);">Play</button>
+           <button id="mulaiberhenti" onclick="mulaiberhenti()" style="font-size: 16px;background-color: rgba(248, 160, 105, 0.564);" value="berhenti">Start/Stop</button>
+           <button id="pauto" onclick="pauto()" style="font-size: 16px;background-color: rgba(248, 160, 105, 0.564);" value="tidak">Auto</button>
+           <button id="sauto" onclick="sauto()" style="font-size: 16px;background-color: rgba(248, 160, 105, 0.564);" value="tidak" hidden>Auto Stop</button>
+           <input id="sttplayer" type="number" value="0" hidden><br>
+      </td>
+    </tr>
+    <tr style="font-size: 16px;" hidden>
+      <td>
+           <label id="l1" >Mulai</label> <input id="aud1" type="number" value="0" style="font-size: 16px;" onfocus="aud2keaud1();" >
+           <label id="l2" >Akhir</label> <input id="aud2" type="number" value="0" style="font-size: 16px;" onfocus="ambilposaud();" >
+      </td>
+    </tr>
+    <tr style="font-size: 16px;">
+      <td>
+           <textarea id="terjemahan"rows="2" cols="80" hidden>
+          </textarea>
+      </td>
+    </tr>
+    <tr style="font-size: 16px;">
+      <td>
+          <marquee behavior="scroll" direction="left" onMouseOut="this.start();" onMouseOver="this.stop();">
+            <p id="runtext" style="font-size: 23px;">Terjemahan</p>
+          </marquee>
+      </td>
+    </tr>
+    <tr style="font-size: 16px;">
+      <td>
+        <frame width="100%">
+          <img id="ayat" src="imgs/basmalah.png" width="100%">
+        </frame>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+<script lang="javascript">
+  document.getElementById("surat").value=database[0]['surat'];
+  document.getElementById("jumayat").value=database[0]['jumayat'];
+  nmfile="mp3/"+database[0]['surat']+".mp3";
+  nmfile=database[0]['surat']+".mp3";
+  document.getElementById("ctrl_iwr4_3").src=nmfile;
+  document.getElementById("src_iwr4_3").src=nmfile;
+
+  document.getElementById("aud1").value=database[0]['awal'];
+  document.getElementById("aud2").value=database[0]['akhir'];
+  document.getElementById("ayat").src=database[0]['imgayat'];
+  document.getElementById("terjemahan").value=database[0]['terjemahan'];
+  document.getElementById("runtext").innerHTML=database[0]['terjemahan'];
+  no=parseInt(document.getElementById("noayat").value);
+  akhir=0;
+  
+  const audioPlayer = document.getElementById('ctrl_iwr4_3');
+  audioPlayer.addEventListener('pause', () => {
+    document.getElementById("mulaiberhenti").innerHTML="Start";
+    if (document.getElementById("pauto").value=='ya'){
+      no=no+1;
+      document.getElementById("noayat").value=no;
+      document.getElementById("aud1").value=database[no-1]['awal'];
+      document.getElementById("aud2").value=database[no-1]['akhir'];
+      document.getElementById("ayat").src=database[no-1]['imgayat'];
+      document.getElementById("terjemahan").value=database[no-1]['terjemahan'];
+      document.getElementById("runtext").innerHTML=database[no-1]['terjemahan'];
+      startt();
+    }
+    if (parseInt(document.getElementById("noayat").value)==database[0]['jumayat']){
+      document.getElementById("sauto").hidden=true;
+      document.getElementById("pauto").hidden=false;
+    }
+  });  
+
+  audioPlayer.addEventListener('play', () => {
+    document.getElementById("mulaiberhenti").innerHTML="Stop";
+    akhir=0;
+//    alert('awal');
+  });  
+
+  audioPlayer.addEventListener('ended', () => {
+    akhir=1;
+    alert('akhir');
+  });  
+
+function ukuranayatpng()
+{
+    document.getElementById("ayat").value=document.getElementById("ukuranid").value+'px';
+    var gambar = document.getElementById("ayat");  
+    gambar.style.width = document.getElementById("ukuranid").value+'%';
+}
+
+function pauto()
+{
+  no=parseInt(document.getElementById("noayat").value);
+  document.getElementById("pauto").value='ya';
+  document.getElementById("pauto").hidden=true;
+  document.getElementById("sauto").hidden=false;
+
+  document.getElementById("aud1").value=database[no-1]['awal'];
+  document.getElementById("aud2").value=database[no-1]['akhir'];
+  document.getElementById("ayat").src=database[no-1]['imgayat'];
+  document.getElementById("terjemahan").value=database[no-1]['terjemahan'];
+  document.getElementById("runtext").innerHTML=database[no-1]['terjemahan'];
+  startt();
+}
+
+function sauto()
+{
+  document.getElementById("pauto").value='tidak';
+  document.getElementById("sauto").hidden=true;
+  document.getElementById("pauto").hidden=false;
+}
+
+function ulang()
+{
+  var no=parseInt(document.getElementById("noayat").value);
+  if (no>1){
+    document.getElementById("noayat").value=no-1;
+  }
+  tampildata();
+}
+
+function lanjut()
+{
+  var no=parseInt(document.getElementById("noayat").value)+1;
+  if (no==database[0]['jumayat']){
+    document.getElementById("pauto").value='tidak';
+  }
+  if (no>database[0]['jumayat']){
+    no=database[0]['jumayat'];
+  }
+  document.getElementById("noayat").value=no;
+  tampildata();
+}
+
+function tampildata()
+{
+  no=parseInt(document.getElementById("noayat").value);
+  if (no>0){
+    if (no>database[0]['jumayat']){
+      document.getElementById("pauto").value='tidak';
+      document.getElementById("noayat").value=database[0]['jumayat'];
+      no=parseInt(document.getElementById("noayat").value);
+    } 
+  } else {
+    document.getElementById("noayat").value=1;
+    no=parseInt(document.getElementById("noayat").value);
+  }
+  document.getElementById("aud1").value=database[no-1]['awal'];
+  document.getElementById("aud2").value=database[no-1]['akhir'];
+  document.getElementById("ayat").src=database[no-1]['imgayat'];
+  document.getElementById("terjemahan").value=database[no-1]['terjemahan'];
+  document.getElementById("runtext").innerHTML=database[no-1]['terjemahan'];
+}
+
+function mulai() 
+{
+         	var nmaudio = document.getElementById("ctrl_iwr4_3");
+          setTimeout(function () {
+            nmaudio.play();
+          }, 0 * 1000);
+}
+
+function berhenti() 
+{
+         	var nmaudio = document.getElementById("ctrl_iwr4_3");
+          setTimeout(function () {
+            nmaudio.pause();
+          }, 0 * 1000);
+}
+
+function mulaiberhenti() 
+{
+          var nmaudio = document.getElementById("ctrl_iwr4_3");
+          var stt = document.getElementById("mulaiberhenti").value;
+          document.getElementById("pauto").value='tidak';
+          setTimeout(function () {
+            if (stt=="mulai") {
+              nmaudio.pause();
+              document.getElementById("mulaiberhenti").value="berhenti";
+              document.getElementById("mulaiberhenti").innerHTML="Start";
+            } else {
+              nmaudio.play();
+              document.getElementById("mulaiberhenti").value="mulai";
+              document.getElementById("mulaiberhenti").innerHTML="Stop";
+            }
+          }, 0 * 1000);
+}
+
+function startt() 
+{
+         	var nmaudio = document.getElementById("ctrl_iwr4_3");
+        	var aud1 = document.getElementById("aud1").value;
+        	var aud2 = document.getElementById("aud2").value;
+          nmaudio.currentTime = aud1;
+          setTimeout(function () {
+            document.getElementById("sttplayer").value=1;
+            nmaudio.play();
+          }, 0 * 1000);
+          setTimeout(function () { }, 2 * 1000);
+          stopt(aud1,aud2);
+}
+
+function stopt(aud1,aud2) 
+{
+        	var nmaudio = document.getElementById("ctrl_iwr4_3");
+          setTimeout(function () {
+            nmaudio.pause();
+          }, (aud2-aud1) * 1000);
+}
+</script>
+
+
